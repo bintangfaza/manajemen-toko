@@ -4,8 +4,11 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\User;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
+// Route utama
 Route::get('/', function () {
     return view('welcome');
 });
@@ -109,3 +112,97 @@ Route::get('/praktek-eloquent', function () {
 
     return "<br><h3>Praktek Eloquent selesai!</h3>";
 });
+
+// === PRAKTEK ROUTING DASAR ===
+
+// 1. Route GET sederhana
+Route::get('/products-simple', function () {
+    $products = Product::all();
+    return view('products.simple', compact('products'));
+})->name('products.simple');
+
+// 2. Route dengan parameter
+Route::get('/product/{id}', function ($id) {
+    $product = Product::find($id);
+    if (!$product) {
+        return abort(404, 'Produk tidak ditemukan');
+    }
+    return "Produk: {$product->name} - Harga: Rp. " . number_format($product->price);
+})->name('product.detail');
+
+// 3. Route dengan parameter opsional
+Route::get('/products-by-price/{min?}', function ($min = 0) {
+    $products = Product::where('price', '>=', $min)->get();
+    return "Produk dengan harga >= Rp. " . number_format($min) . ": " . $products->count() . " produk";
+})->name('products.by.price');
+
+// === RESOURCE CONTROLLER ===
+
+// 4. Resource route untuk produk (7 route otomatis)
+Route::resource('products', ProductController::class);
+
+// 5. Resource route untuk transaksi (hanya yang diperlukan)
+Route::resource('transactions', TransactionController::class)
+    ->only(['index', 'create', 'store', 'show']);
+
+// === ROUTE GROUPING ===
+
+// 6. Group route dengan prefix admin
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return "Admin Dashboard";
+    })->name('admin.dashboard');
+
+    Route::get('/users', function () {
+        $users = User::all();
+        return "Total Users: " . $users->count();
+    })->name('admin.users');
+
+    Route::get('/reports', function () {
+        $totalTransactions = Transaction::count();
+        $totalRevenue = Transaction::sum('total_amount');
+        return "Total Transaksi: {$totalTransactions}, Total Pendapatan: Rp. " . number_format($totalRevenue);
+    })->name('admin.reports');
+});
+
+// 7. Group route dengan middleware (simulasi)
+Route::group(['prefix' => 'kasir', 'as' => 'kasir.'], function () {
+    Route::get('/pos', function () {
+        return "Point of Sale System";
+    })->name('pos');
+
+    Route::get('/sales', function () {
+        return "Data Penjualan Kasir";
+    })->name('sales');
+});
+
+// === ROUTE DENGAN BERBAGAI HTTP METHOD ===
+
+// 8. Route untuk API-like endpoints
+Route::get('/api/products', function () {
+    return response()->json(Product::all());
+})->name('api.products.index');
+
+Route::post('/api/products', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'price' => 'required|numeric',
+        'stock' => 'required|integer',
+    ]);
+
+    $product = Product::create($validated);
+    return response()->json($product, 201);
+})->name('api.products.store');
+
+// 9. Route untuk praktek HTTP methods
+Route::get('/test-routes', function () {
+    $routes = [
+        'GET /products' => route('products.index'),
+        'POST /products' => route('products.store'),
+        'GET /products/{id}' => route('products.show', 1),
+        'PUT /products/{id}' => route('products.update', 1),
+        'DELETE /products/{id}' => route('products.destroy', 1),
+    ];
+
+    return view('test-routes', compact('routes'));
+})->name('test.routes');
