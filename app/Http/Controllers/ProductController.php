@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
@@ -21,20 +23,21 @@ class ProductController extends Controller
     }
 
     // Menyimpan produk baru ke database (CREATE)
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|unique:products,barcode',
-        ]);
+        // Validasi sudah dilakukan otomatis oleh FormRequest
+        $validated = $request->validated();
 
-        Product::create($validated);
+        try {
+            Product::create($validated);
 
-        return redirect()->route('products.index')
-            ->with('success', 'Produk berhasil ditambahkan!');
+            return redirect()->route('products.index')
+                ->with('success', 'Produk berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan produk: ' . $e->getMessage());
+        }
     }
 
     // Menampilkan detail produk (READ)
@@ -50,20 +53,21 @@ class ProductController extends Controller
     }
 
     // Mengupdate produk di database (UPDATE)
-    public function update(Request $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|unique:products,barcode,' . $product->id,
-        ]);
+        // Validasi sudah dilakukan otomatis oleh FormRequest
+        $validated = $request->validated();
 
-        $product->update($validated);
+        try {
+            $product->update($validated);
 
-        return redirect()->route('products.index')
-            ->with('success', 'Produk berhasil diperbarui!');
+            return redirect()->route('products.index')
+                ->with('success', 'Produk berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat memperbarui produk: ' . $e->getMessage());
+        }
     }
 
     // Menghapus produk dari database (DELETE)
