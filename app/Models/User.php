@@ -34,4 +34,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class);
     }
+
+    // Method untuk cek role
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isKasir()
+    {
+        return $this->role === 'kasir';
+    }
 }
