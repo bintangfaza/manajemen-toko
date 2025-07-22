@@ -23,10 +23,10 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|unique:products,barcode|max:50,',
+            'barcode' => 'required|string|unique:products,barcode',
         ];
     }
 
@@ -36,35 +36,17 @@ class StoreProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Nama produk wajib diisi.',
-            'name.string' => 'Nama produk harus berupa teks.',
-            'name.max' => 'Nama produk maksimal 255 karakter.',
-            'description.max' => 'Deskripsi maksimal 1000 karakter.',
-            'price.required' => 'Harga wajib diisi.',
-            'price.numeric' => 'Harga harus berupa angka.',
-            'price.min' => 'Harga tidak boleh kurang dari 0.',
-            'price.max' => 'Harga maksimal Rp 999.999,99.',
-            'stock.required' => 'Stok wajib diisi.',
-            'stock.integer' => 'Stok harus berupa angka bulat.',
-            'stock.min' => 'Stok tidak boleh kurang dari 0.',
-            'stock.max' => 'Stok maksimal 9999.',
-            'barcode.unique' => 'Barcode sudah digunakan produk lain.',
-            'barcode.max' => 'Barcode maksimal 50 karakter.',
+            'name.required' => 'Nama produk harus diisi',
+            'name.max' => 'Nama produk maksimal 255 karakter',
+            'description.required' => 'Deskripsi produk harus diisi',
+            'price.required' => 'Harga produk harus diisi',
+            'price.numeric' => 'Harga harus berupa angka',
+            'price.min' => 'Harga tidak boleh negatif',
+            'stock.required' => 'Stok produk harus diisi',
+            'stock.integer' => 'Stok harus berupa angka bulat',
+            'stock.min' => 'Stok tidak boleh negatif',
+            'barcode.required' => 'Barcode harus diisi',
+            'barcode.unique' => 'Barcode sudah ada, gunakan barcode lain',
         ];
     }
-
-    /**
-     * Get custom attributes for validator errors.
-     */
-    public function attributes(): array
-    {
-        return [
-            'name' => 'nama produk',
-            'description' => 'deskripsi',
-            'price' => 'harga',
-            'stock' => 'stok',
-            'barcode' => 'barcode',
-        ];
-    }
-
 }

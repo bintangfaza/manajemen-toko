@@ -7,6 +7,13 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Flash Message untuk notifikasi sukses -->
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-4">
@@ -33,7 +40,12 @@
                                     <tr>
                                         <td class="px-4 py-2 border">{{ $product->name }}</td>
                                         <td class="px-4 py-2 border">Rp. {{ number_format($product->price) }}</td>
-                                        <td class="px-4 py-2 border">{{ $product->stock }}</td>
+                                        <td class="px-4 py-2 border">
+                                            {{ $product->stock }}
+                                            @if($product->stock <= 10)
+                                                <span class="ml-1 text-red-500 text-xs">(Menipis)</span>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-2 border">{{ $product->barcode }}</td>
                                         <td class="px-4 py-2 border">
                                             <a href="{{ route('products.show', $product->id) }}"
@@ -49,7 +61,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-800"
-                                                    onclick="return confirm('Yakin ingin menghapus?')">
+                                                    onclick="return confirm('Yakin ingin menghapus produk {{ $product->name }}?')">
                                                     Hapus
                                                 </button>
                                             </form>
