@@ -1,66 +1,70 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Kelola Produk') }}
+        </h2>
+    </x-slot>
 
-@section('title', 'Daftar Produk')
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Daftar Produk</h3>
+                        <a href="{{ route('products.create') }}"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Tambah Produk
+                        </a>
+                    </div>
 
-@section('content')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Daftar Produk</h1>
-        <a href="{{ route('products.create') }}" class="btn btn-primary">Tambah Produk</a>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            @if($products->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nama</th>
-                                <th>Deskripsi</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Barcode</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($products as $product)
-                                <tr>
-                                    <td>{{ $product->id }}</td>
-                                    <td>{{ $product->name }}</td>
-                                    <td>{{ $product->description ?? '-' }}</td>
-                                    <td>Rp. {{ number_format($product->price, 0, ',', '.') }}</td>
-                                    <td>
-                                        <span
-                                            class="badge {{ $product->stock > 10 ? 'bg-success' : ($product->stock > 0 ? 'bg-warning' : 'bg-danger') }}">
-                                            {{ $product->stock }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $product->barcode ?? '-' }}</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-info">Lihat</a>
-                                            <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Edit</a>
-                                            <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 border">Nama</th>
+                                    <th class="px-4 py-2 border">Harga</th>
+                                    <th class="px-4 py-2 border">Stok</th>
+                                    <th class="px-4 py-2 border">Barcode</th>
+                                    <th class="px-4 py-2 border">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($products as $product)
+                                    <tr>
+                                        <td class="px-4 py-2 border">{{ $product->name }}</td>
+                                        <td class="px-4 py-2 border">Rp. {{ number_format($product->price) }}</td>
+                                        <td class="px-4 py-2 border">{{ $product->stock }}</td>
+                                        <td class="px-4 py-2 border">{{ $product->barcode }}</td>
+                                        <td class="px-4 py-2 border">
+                                            <a href="{{ route('products.show', $product->id) }}"
+                                                class="text-blue-600 hover:text-blue-800 mr-2">
+                                                Lihat
+                                            </a>
+                                            <a href="{{ route('products.edit', $product->id) }}"
+                                                class="text-green-600 hover:text-green-800 mr-2">
+                                                Edit
+                                            </a>
+                                            <form method="POST" action="{{ route('products.destroy', $product->id) }}"
+                                                class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
+                                                <button type="submit" class="text-red-600 hover:text-red-800"
+                                                    onclick="return confirm('Yakin ingin menghapus?')">
+                                                    Hapus
+                                                </button>
                                             </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-2 border text-center">Belum ada produk</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            @else
-                <div class="text-center py-5">
-                    <p class="text-muted">Belum ada produk yang tersedia.</p>
-                    <a href="{{ route('products.create') }}" class="btn btn-primary">Tambah Produk Pertama</a>
-                </div>
-            @endif
+            </div>
         </div>
     </div>
-@endsection
+</x-app-layout>
