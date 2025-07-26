@@ -24,6 +24,76 @@
                         </a>
                     </div>
 
+                    <!-- Form Pencarian dan Filter -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <form method="GET" action="{{ route('products.index') }}"
+                            class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Input Pencarian -->
+                            <div>
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Cari Produk
+                                </label>
+                                <input type="text" name="search" id="search" value="{{ request('search') }}"
+                                    placeholder="Cari nama, deskripsi, atau barcode..."
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- Filter Stok -->
+                            <div>
+                                <label for="stock_filter" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Filter Stok
+                                </label>
+                                <select name="stock_filter" id="stock_filter"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Semua Stok</option>
+                                    <option value="available" {{ request('stock_filter') == 'available' ? 'selected' : '' }}>
+                                        Stok Tersedia
+                                    </option>
+                                    <option value="low" {{ request('stock_filter') == 'low' ? 'selected' : '' }}>
+                                        Stok Menipis (≤10)
+                                    </option>
+                                    <option value="empty" {{ request('stock_filter') == 'empty' ? 'selected' : '' }}>
+                                        Stok Habis
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Tombol Action -->
+                            <div class="flex items-end space-x-2">
+                                <button type="submit"
+                                    class="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded">
+                                    Cari
+                                </button>
+                                <a href="{{ route('products.index') }}"
+                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                    Reset
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Info hasil pencarian -->
+                    @if(request('search') || request('stock_filter'))
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                            <p class="text-blue-700">
+                                Menampilkan hasil 
+                                @if(request('search'))
+                                    pencarian "<strong>{{ request('search') }}</strong>"
+                                @endif
+                                @if(request('stock_filter'))
+                                    dengan filter: <strong>
+                                        @switch(request('stock_filter'))
+                                            @case('available') Stok Tersedia @break
+                                            @case('low') Stok Menipis @break
+                                            @case('empty') Stok Habis @break
+                                        @endswitch
+                                    </strong>
+                                @endif
+                                | Total: <strong>{{ $products->total() }}</strong> produk
+                            </p>
+                        </div>
+                    @endif
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border border-gray-200">
                             <thead>
@@ -42,8 +112,10 @@
                                         <td class="px-4 py-2 border">Rp. {{ number_format($product->price) }}</td>
                                         <td class="px-4 py-2 border">
                                             {{ $product->stock }}
-                                            @if($product->stock <= 10)
-                                                <span class="ml-1 text-red-500 text-xs">(Menipis)</span>
+                                            @if($product->stock <= 10 && $product->stock > 0)
+                                                <span class="ml-1 text-orange-500 text-xs">(Menipis)</span>
+                                            @elseif($product->stock == 0)
+                                                <span class="ml-1 text-red-500 text-xs">(Habis)</span>
                                             @endif
                                         </td>
                                         <td class="px-4 py-2 border">{{ $product->barcode }}</td>
@@ -69,12 +141,25 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-2 border text-center">Belum ada produk</td>
+                                        <td colspan="5" class="px-4 py-2 border text-center">
+                                            @if(request('search') || request('stock_filter'))
+                                                Tidak ada produk yang sesuai dengan kriteria pencarian
+                                            @else
+                                                Belum ada produk
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Pagination -->
+                    @if($products->hasPages())
+                        <div class="mt-6">
+                            {{ $products->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

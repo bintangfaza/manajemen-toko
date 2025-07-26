@@ -31,4 +31,27 @@ class Product extends Model
             ->withPivot('quantity', 'price', 'total')
             ->withTimestamps();
     }
+
+    // Method untuk pencarian produk
+    public static function search($query = '')
+    {
+        return self::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->orWhere('barcode', 'LIKE', "%{$query}%");
+    }
+
+    // Method untuk filter berdasarkan stok
+    public static function filterByStock($status = 'all')
+    {
+        switch ($status) {
+            case 'low':
+                return self::where('stock', '<=', 10);
+            case 'empty':
+                return self::where('stock', 0);
+            case 'available':
+                return self::where('stock', '>', 0);
+            default:
+                return self::query();
+        }
+    }
 }
