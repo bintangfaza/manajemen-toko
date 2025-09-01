@@ -6,6 +6,7 @@ use App\Models\TransactionItem;
 use App\Models\User;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Route utama
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ));
     })->name('admin.dashboard');
 
+
     // Manajemen Produk (hanya admin)
     Route::resource('products', ProductController::class);
 
@@ -84,11 +86,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ));
     })->name('admin.reports');
 
+
     // Manajemen User (hanya admin)
     Route::get('/admin/users', function () {
         $users = User::all();
         return view('admin.users', compact('users'));
     })->name('admin.users');
+
+    Route::resource('/admin/users', UserController::class)
+        ->only(['index', 'destroy', 'edit', 'update'])
+        ->names([
+            'index' => 'admin.users.index',
+            'destroy' => 'admin.users.destroy',
+            'edit' => 'admin.users.edit',
+            'update' => 'admin.users.update',
+        ]);
 });
 
 // Route khusus KASIR

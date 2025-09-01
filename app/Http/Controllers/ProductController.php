@@ -3,101 +3,105 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    // Menampilkan daftar semua produk
     public function index(Request $request)
     {
-        // Mulai dengan query dasar
         $query = Product::query();
 
-        // Jika ada parameter pencarian
+        // Search functionality
         if ($request->filled('search')) {
-            $searchTerm = $request->get('search');
-            $query = Product::search($searchTerm);
+            $query = Product::search($request->search);
         }
 
-        // Jika ada parameter filter stok
+        // Stock filter
         if ($request->filled('stock_filter')) {
-            $stockFilter = $request->get('stock_filter');
-            if ($request->filled('search')) {
-                // Jika sudah ada pencarian, tambahkan filter
-                $query->where(function ($q) use ($stockFilter) {
-                    switch ($stockFilter) {
-                        case 'low':
-                            $q->where('stock', '<=', 10);
-                            break;
-                        case 'empty':
-                            $q->where('stock', 0);
-                            break;
-                        case 'available':
-                            $q->where('stock', '>', 0);
-                            break;
-                    }
-                });
-            } else {
-                // Jika tidak ada pencarian, gunakan filter langsung
-                $query = Product::filterByStock($stockFilter);
-            }
+            $query = Product::filterByStock($request->stock_filter);
         }
 
-        // Urutkan berdasarkan nama dan gunakan pagination
-        $products = $query->orderBy('name', 'asc')
-            ->paginate(10)
-            ->appends($request->query());
-
-
+        $products = $query->paginate(10)->withQueryString();
         return view('products.index', compact('products'));
     }
 
-    // Menampilkan form untuk membuat produk baru
     public function create()
     {
         return view('products.create');
     }
 
-    // Menyimpan produk baru ke database
-    public function store(StoreProductRequest $request)
+    public function store(Request $request)
     {
-        // Validasi data sudah dilakukan di StoreProductRequest
-        Product::create($request->validated());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'barcode' => 'required|string|unique:products,barcode',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-        // Redirect ke halaman index dengan pesan sukses
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $validated['image'] = $imagePath;
+        }
+
+        Product::create($validated);
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil ditambahkan!');
     }
-    // Menampilkan detail produk tertentu
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
     }
 
-    // Menampilkan form untuk edit produk
     public function edit(Product $product)
     {
         return view('products.edit', compact('product'));
     }
 
-    // Mengupdate data produk di database
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(Request $request, Product $product)
     {
-        // Validasi data sudah dilakukan di UpdateProductRequest
-        $product->update($request->validated());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'barcode' => 'required|string|unique:products,barcode,' . $product->id,
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-        // Redirect ke halaman index dengan pesan sukses
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image
+            $product->deleteImage();
+
+            // Upload new image
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $validated['image'] = $imagePath;
+        }
+
+        $product->update($validated);
+
         return redirect()->route('products.index')
-            ->with('success', 'Produk berhasil diupdate!');
+            ->with('success', 'Produk berhasil diperbarui!');
     }
-    // Menghapus produk dari database
+
     public function destroy(Product $product)
     {
+        // Delete image before deleting product
+        $product->deleteImage();
+
         $product->delete();
 
-        // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil dihapus!');
     }

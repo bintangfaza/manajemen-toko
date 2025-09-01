@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -16,6 +17,7 @@ class Product extends Model
         'price',
         'stock',
         'barcode',
+        'image',
     ];
 
     // relasi one-to-many dengan TransactionItem
@@ -30,6 +32,23 @@ class Product extends Model
         return $this->belongsToMany(Transaction::class, 'transaction_items')
             ->withPivot('quantity', 'price', 'total')
             ->withTimestamps();
+    }
+
+    // Method untuk mendapatkan URL gambar
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return Storage::url($this->image);
+        }
+        return asset('images/no-image.png'); // gambar default jika tidak ada
+    } 
+
+    // Method untuk menghapus gambar lama
+    public function deleteImage()
+    {
+        if ($this->image && Storage::exists($this->image)) {
+            Storage::delete($this->image);
+        }
     }
 
     // Method untuk pencarian produk

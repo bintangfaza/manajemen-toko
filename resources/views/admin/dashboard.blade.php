@@ -42,7 +42,7 @@
                             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             Lihat Laporan
                         </a>
-                        <a href="{{ route('admin.users') }}"
+                        <a href="{{ route('admin.users.index') }}"
                             class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
                             Kelola User
                         </a>

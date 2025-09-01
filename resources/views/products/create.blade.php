@@ -10,9 +10,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <!-- Form untuk menambah produk -->
-                    <form method="POST" action="{{ route('products.store') }}">
+                    <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
                         @csrf
-                        <!-- Input Nama Produk -->
                         <div class="mb-4">
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                                 Nama Produk
@@ -24,8 +23,6 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-                        <!-- Input Deskripsi -->
                         <div class="mb-4">
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                                 Deskripsi
@@ -37,7 +34,6 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        <!-- Input Harga -->
                         <div class="mb-4">
                             <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
                                 Harga (Rp)
@@ -49,6 +45,7 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                         <!-- Input Stok -->
                         <div class="mb-4">
                             <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
@@ -63,7 +60,7 @@
                         </div>
 
                         <!-- Input Barcode -->
-                        <div class="mb-6">
+                        <div class="mb-4">
                             <label for="barcode" class="block text-sm font-medium text-gray-700 mb-2">
                                 Barcode
                             </label>
@@ -73,6 +70,28 @@
                             @error('barcode')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <!-- Input Gambar -->
+                        <div class="mb-6">
+                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                                Gambar Produk
+                            </label>
+                            <input type="file" name="image" id="image" accept="image/*"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 @error('image') border-red-500 @enderror"
+                                onchange="previewImage(this)">
+                            @error('image')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                            <p class="text-sm text-gray-500 mt-1">
+                                Format: JPEG, PNG, JPG, GIF. Maksimal 2MB.
+                            </p>
+
+                            <!-- Preview Image -->
+                            <div id="imagePreview" class="mt-3 hidden">
+                                <img id="preview" src="" alt="Preview"
+                                    class="max-w-xs h-32 object-cover rounded-lg border">
+                            </div>
                         </div>
 
                         <!-- Tombol Submit dan Batal -->
@@ -91,4 +110,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            const previewDiv = document.getElementById('imagePreview');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    previewDiv.classList.remove('hidden');
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewDiv.classList.add('hidden');
+            }
+        }
+    </script>
 </x-app-layout>

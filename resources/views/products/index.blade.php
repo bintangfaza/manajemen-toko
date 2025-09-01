@@ -98,6 +98,7 @@
                         <table class="min-w-full bg-white border border-gray-200">
                             <thead>
                                 <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 border">Gambar</th>
                                     <th class="px-4 py-2 border">Nama</th>
                                     <th class="px-4 py-2 border">Harga</th>
                                     <th class="px-4 py-2 border">Stok</th>
@@ -108,6 +109,11 @@
                             <tbody>
                                 @forelse($products as $product)
                                     <tr>
+                                        <td class="px-4 py-2 border text-center">
+                                            <img src="{{ $product->image_url }}"
+                                                 alt="{{ $product->name }}"
+                                                 class="w-16 h-16 object-cover rounded-lg mx-auto">
+                                        </td>
                                         <td class="px-4 py-2 border">{{ $product->name }}</td>
                                         <td class="px-4 py-2 border">Rp. {{ number_format($product->price) }}</td>
                                         <td class="px-4 py-2 border">
@@ -141,7 +147,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-2 border text-center">
+                                        <td colspan="6" class="px-4 py-2 border text-center">
                                             @if(request('search') || request('stock_filter'))
                                                 Tidak ada produk yang sesuai dengan kriteria pencarian
                                             @else

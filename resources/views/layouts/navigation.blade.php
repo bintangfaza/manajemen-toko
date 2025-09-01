@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-blue-600 ">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <x-application-logo class="block h-9 w-auto fill-current text-white" />
                     </a>
                 </div>
 
@@ -17,21 +17,24 @@
                     </x-nav-link>
 
                     @if(auth()->user()->isAdmin())
-                        <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
-                            {{ __('Produk') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.reports')" :active="request()->routeIs('admin.reports')">
-                            {{ __('Laporan') }}
-                        </x-nav-link>
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                        {{ __('Produk') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.reports')" :active="request()->routeIs('admin.reports')">
+                        {{ __('Laporan') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')">
+                        {{ __('User') }}
+                    </x-nav-link>
                     @endif
 
                     @if(auth()->user()->isKasir())
-                        <x-nav-link :href="route('kasir.pos')" :active="request()->routeIs('kasir.pos')">
-                            {{ __('POS') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('kasir.sales')" :active="request()->routeIs('kasir.sales')">
-                            {{ __('Penjualan') }}
-                        </x-nav-link>
+                    <x-nav-link :href="route('kasir.pos')" :active="request()->routeIs('kasir.pos')">
+                        {{ __('POS') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('kasir.sales')" :active="request()->routeIs('kasir.sales')">
+                        {{ __('Penjualan') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -91,21 +94,21 @@
             </x-responsive-nav-link>
 
             @if(auth()->user()->isAdmin())
-                <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
-                    {{ __('Produk') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.reports')" :active="request()->routeIs('admin.reports')">
-                    {{ __('Laporan') }}
-                </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                {{ __('Produk') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.reports')" :active="request()->routeIs('admin.reports')">
+                {{ __('Laporan') }}
+            </x-responsive-nav-link>
             @endif
 
             @if(auth()->user()->isKasir())
-                <x-responsive-nav-link :href="route('kasir.pos')" :active="request()->routeIs('kasir.pos')">
-                    {{ __('POS') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('kasir.sales')" :active="request()->routeIs('kasir.sales')">
-                    {{ __('Penjualan') }}
-                </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('kasir.pos')" :active="request()->routeIs('kasir.pos')">
+                {{ __('POS') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('kasir.sales')" :active="request()->routeIs('kasir.sales')">
+                {{ __('Penjualan') }}
+            </x-responsive-nav-link>
             @endif
         </div>
 
